@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: medicare-hospital-system
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn hospital_project.wsgi:application"
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medicare-db
+          property: connectionString
+
+databases:
+  - name: medicare-db
+    databaseName: medicare_db
+    user: medicare_user
+    plan: free
