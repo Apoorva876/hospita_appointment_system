@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Doctors - MediCare Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <a href="{% url 'admin_dashboard' %}" style="color: var(--text-muted); text-decoration: none;">
+          <i class="fa-solid fa-arrow-left"></i> Admin Console
+        </a>
+        <span style="color: var(--border-color);">/</span>
+        <span style="color: var(--primary); font-weight: 600;">Doctors</span>
+      </div>
+      <h1 style="font-size: 2rem;">Medical Doctors Directory</h1>
+      <p style="color: var(--text-muted);">Manage verified medical practitioners, schedules, departments and consultation fees.</p>
+    </div>
+    <div>
+      <a href="{% url 'admin_doctor_create' %}" class="btn btn-primary" id="btn-enroll-doctor">
+        <i class="fa-solid fa-user-plus"></i> Enroll New Doctor
+      </a>
+    </div>
+  </div>
+
+  <!-- Search & Filter Card -->
+  <div class="card" style="margin-bottom: 2rem; padding: 1.25rem;">
+    <form method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div style="flex: 2; min-width: 250px;">
+        <input type="text" name="q" class="form-control" placeholder="Search doctor by name, specialty, username..." value="{{ query }}">
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <select name="department" class="form-control">
+          <option value="">All Clinical Departments</option>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if selected_dept == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-magnifying-glass"></i> Filter
+        </button>
+        {% if query or selected_dept %}
+          <a href="{% url 'admin_doctor_list' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Reset</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Doctors Table -->
+  <div class="card">
+    {% if doctors %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Doctor</th>
+              <th>Department</th>
+              <th>Specialization</th>
+              <th>Experience</th>
+              <th>Working Hours</th>
+              <th>Fee</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for doc in doctors %}
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background: #ecfdf5; color: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                      <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div>
+                      <strong>Dr. {{ doc.user.get_full_name|default:doc.user.username }}</strong>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">
+                        @{{ doc.user.username }} &bull; {{ doc.user.email }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="role-pill role-patient">{{ doc.department.name|default:"General" }}</span>
+                </td>
+                <td>{{ doc.specialization }}</td>
+                <td>{{ doc.experience }} Years</td>
+                <td>
+                  <small style="font-weight: 600; color: var(--dark);">
+                    {{ doc.working_hours_start|time:"g:i A" }} - {{ doc.working_hours_end|time:"g:i A" }}
+                  </small>
+                  {% if doc.room_number %}
+                    <div style="font-size: 0.78rem; color: var(--text-muted);">{{ doc.room_number }}</div>
+                  {% endif %}
+                </td>
+                <td>
+                  <strong style="color: var(--secondary);">${{ doc.fee }}</strong>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: inline-flex; gap: 0.4rem;">
+                    <a href="{% url 'doctor_detail' doc.id %}" class="btn btn-outline btn-sm" target="_blank" title="Public profile">
+                      <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <a href="{% url 'admin_doctor_edit' doc.id %}" class="btn btn-outline btn-sm" title="Edit doctor">
+                      <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </a>
+                    <a href="{% url 'admin_doctor_delete' doc.id %}" class="btn btn-danger btn-sm" title="Delete doctor">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem;">
+        <i class="fa-solid fa-user-doctor" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+        <h3>No Doctors Found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">No doctor records match the criteria or none have been enrolled yet.</p>
+        <a href="{% url 'admin_doctor_create' %}" class="btn btn-primary">Enroll New Doctor</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

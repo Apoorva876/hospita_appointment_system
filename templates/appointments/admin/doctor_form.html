@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - MediCare Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem; max-width: 760px;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'admin_doctor_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.95rem;">
+      <i class="fa-solid fa-arrow-left"></i> Back to Doctors Directory
+    </a>
+  </div>
+
+  <div class="card" style="box-shadow: var(--shadow-lg);">
+    <div class="card-header">
+      <h1 style="font-size: 1.6rem;">
+        <i class="fa-solid fa-user-doctor" style="color: var(--secondary); margin-right: 0.4rem;"></i> {{ title }}
+      </h1>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <div>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Section: User Account Credentials -->
+      <h3 style="font-size: 1.15rem; color: var(--dark); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.25rem;">
+        <i class="fa-solid fa-id-card" style="color: var(--primary);"></i> User Account Credentials
+      </h3>
+
+      {% if form.username %}
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="id_username">Doctor Username *</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+              <small style="color: var(--danger); font-size: 0.82rem;">{{ form.username.errors.0 }}</small>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="id_password">Temporary Login Password *</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+              <small style="color: var(--danger); font-size: 0.82rem;">{{ form.password.errors.0 }}</small>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_first_name">First Name *</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.first_name.errors.0 }}</small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_last_name">Last Name *</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.last_name.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_email">Email Address *</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.email.errors.0 }}</small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_phone">Contact Phone</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.phone.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Section: Medical & Practice Details -->
+      <h3 style="font-size: 1.15rem; color: var(--dark); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 1.5rem; margin-bottom: 1.25rem;">
+        <i class="fa-solid fa-stethoscope" style="color: var(--secondary);"></i> Department & Clinical Practice
+      </h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_department">Clinical Department *</label>
+          {{ form.department }}
+          {% if form.department.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.department.errors.0 }}</small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_specialization">Medical Specialization *</label>
+          {{ form.specialization }}
+          {% if form.specialization.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.specialization.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_experience">Experience (Years) *</label>
+          {{ form.experience }}
+          {% if form.experience.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.experience.errors.0 }}</small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_fee">Consultation Fee ($) *</label>
+          {{ form.fee }}
+          {% if form.fee.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.fee.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_working_hours_start">Working Hours Start *</label>
+          {{ form.working_hours_start }}
+          {% if form.working_hours_start.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.working_hours_start.errors.0 }}</small>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_working_hours_end">Working Hours End *</label>
+          {{ form.working_hours_end }}
+          {% if form.working_hours_end.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.working_hours_end.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_room_number">Room / Clinic Number</label>
+        {{ form.room_number }}
+        {% if form.room_number.errors %}
+          <small style="color: var(--danger); font-size: 0.82rem;">{{ form.room_number.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_bio">Doctor Biography / Clinical Focus</label>
+        {{ form.bio }}
+        {% if form.bio.errors %}
+          <small style="color: var(--danger); font-size: 0.82rem;">{{ form.bio.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.75rem;">
+        <a href="{% url 'admin_doctor_list' %}" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary" id="btn-save-doctor">
+          <i class="fa-solid fa-floppy-disk"></i> Save Doctor Record
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}All Hospital Appointments - MediCare Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <a href="{% url 'admin_dashboard' %}" style="color: var(--text-muted); text-decoration: none;">
+          <i class="fa-solid fa-arrow-left"></i> Admin Console
+        </a>
+        <span style="color: var(--border-color);">/</span>
+        <span style="color: var(--primary); font-weight: 600;">Appointments</span>
+      </div>
+      <h1 style="font-size: 2rem;">Hospital Consultations Master Log</h1>
+      <p style="color: var(--text-muted);">Audit, search, filter and oversee all patient-doctor bookings hospital-wide.</p>
+    </div>
+    <div>
+      <span class="role-pill role-admin" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+        <i class="fa-solid fa-list-check"></i> {{ total_filtered }} Consultations Listed
+      </span>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+    <a href="{% url 'admin_appointment_list' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline{% endif %} btn-sm">
+      All Statuses
+    </a>
+    {% for st in status_choices %}
+      <a href="{% url 'admin_appointment_list' %}?status={{ st }}{% if doctor_filter %}&doctor={{ doctor_filter }}{% endif %}{% if query %}&q={{ query }}{% endif %}" 
+        class="btn {% if status_filter == st %}btn-primary{% else %}btn-outline{% endif %} btn-sm">
+        {{ st }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Search & Doctor Filter Card -->
+  <div class="card" style="margin-bottom: 2rem; padding: 1.25rem;">
+    <form method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      {% if status_filter %}
+        <input type="hidden" name="status" value="{{ status_filter }}">
+      {% endif %}
+      <div style="flex: 2; min-width: 250px;">
+        <input type="text" name="q" class="form-control" placeholder="Search by patient name, doctor name, reason, clinical notes..." value="{{ query }}">
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <select name="doctor" class="form-control">
+          <option value="">All Specialist Doctors</option>
+          {% for doc in doctors %}
+            <option value="{{ doc.id }}" {% if doctor_filter == doc.id %}selected{% endif %}>
+              Dr. {{ doc.user.get_full_name|default:doc.user.username }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-magnifying-glass"></i> Filter
+        </button>
+        {% if query or doctor_filter or status_filter %}
+          <a href="{% url 'admin_appointment_list' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Reset All</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Appointments Master Table -->
+  <div class="card">
+    {% if appointments %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Patient</th>
+              <th>Doctor & Department</th>
+              <th>Date & Time</th>
+              <th>Reason / Clinical Notes</th>
+              <th>Status</th>
+              <th style="text-align: right;">Status Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in appointments %}
+              <tr>
+                <td><strong>#{{ app.id }}</strong></td>
+                <td>
+                  <strong>{{ app.patient.get_full_name|default:app.patient.username }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ app.patient.email }} &bull; {{ app.patient.phone|default:"No phone" }}
+                  </div>
+                </td>
+                <td>
+                  <strong>Dr. {{ app.doctor.user.get_full_name|default:app.doctor.user.username }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    {{ app.doctor.department.name|default:"General" }} &bull; {{ app.doctor.specialization }}
+                  </div>
+                </td>
+                <td>
+                  <div style="font-weight: 600;">{{ app.date|date:"M d, Y" }}</div>
+                  <small style="color: var(--primary);">{{ app.time|time:"g:i A" }}</small>
+                </td>
+                <td style="max-width: 260px;">
+                  <div style="font-size: 0.9rem;">{{ app.reason|truncatewords:10 }}</div>
+                  {% if app.doctor_notes %}
+                    <div style="margin-top: 0.35rem; font-size: 0.82rem; color: #047857; background: #ecfdf5; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #a7f3d0;">
+                      <i class="fa-solid fa-file-medical"></i> {{ app.doctor_notes|truncatewords:8 }}
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span>
+                </td>
+                <td style="text-align: right;">
+                  <div style="display: inline-flex; gap: 0.35rem; flex-wrap: wrap; justify-content: flex-end;">
+                    {% if app.status == 'Pending' %}
+                      <a href="{% url 'admin_appointment_update_status' app.id 'confirm' %}" class="btn btn-success btn-sm" title="Confirm Appointment">
+                        <i class="fa-solid fa-check"></i>
+                      </a>
+                      <a href="{% url 'admin_appointment_update_status' app.id 'reject' %}" class="btn btn-danger btn-sm" title="Reject Appointment">
+                        <i class="fa-solid fa-xmark"></i>
+                      </a>
+                    {% elif app.status == 'Confirmed' %}
+                      <a href="{% url 'admin_appointment_update_status' app.id 'complete' %}" class="btn btn-primary btn-sm" title="Mark Completed">
+                        <i class="fa-solid fa-circle-check"></i> Complete
+                      </a>
+                      <a href="{% url 'admin_appointment_update_status' app.id 'cancel' %}" class="btn btn-danger btn-sm" title="Cancel Appointment">
+                        <i class="fa-solid fa-ban"></i>
+                      </a>
+                    {% else %}
+                      <span style="color: var(--text-light); font-size: 0.82rem;">Archived</span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem;">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+        <h3>No Appointments Found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">No appointment records match the selected status or filter parameters.</p>
+        <a href="{% url 'admin_appointment_list' %}" class="btn btn-outline">Clear All Filters</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

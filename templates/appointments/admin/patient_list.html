@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Directory - MediCare Admin{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <a href="{% url 'admin_dashboard' %}" style="color: var(--text-muted); text-decoration: none;">
+          <i class="fa-solid fa-arrow-left"></i> Admin Console
+        </a>
+        <span style="color: var(--border-color);">/</span>
+        <span style="color: var(--primary); font-weight: 600;">Patients</span>
+      </div>
+      <h1 style="font-size: 2rem;">Enrolled Patient Directory</h1>
+      <p style="color: var(--text-muted);">Overview of registered patients, contact channels, and medical profiles.</p>
+    </div>
+    <div>
+      <span class="role-pill role-patient" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+        <i class="fa-solid fa-users"></i> {{ total_patients }} Registered Patients
+      </span>
+    </div>
+  </div>
+
+  <!-- Search Card -->
+  <div class="card" style="margin-bottom: 2rem; padding: 1.25rem;">
+    <form method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 280px;">
+        <input type="text" name="q" class="form-control" placeholder="Search by patient name, username, email, or phone..." value="{{ query }}">
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-magnifying-glass"></i> Search Patients
+        </button>
+        {% if query %}
+          <a href="{% url 'admin_patient_list' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    {% if patients %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Contact Details</th>
+              <th>Medical Details</th>
+              <th>Emergency Contact</th>
+              <th>Registered</th>
+              <th>Bookings</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for patient in patients %}
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 38px; height: 38px; border-radius: var(--radius-full); background: #f0fdf4; color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                      <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                      <strong>{{ patient.get_full_name|default:patient.username }}</strong>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">@{{ patient.username }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div><i class="fa-regular fa-envelope" style="color: var(--text-muted); font-size: 0.85rem;"></i> {{ patient.email }}</div>
+                  <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-phone" style="font-size: 0.78rem;"></i> {{ patient.phone|default:"No phone" }}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <span style="font-weight: 600;">Blood:</span> 
+                    <span style="color: var(--danger); font-weight: 700;">{{ patient.patient_profile.blood_group|default:"-" }}</span>
+                  </div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted);">
+                    {{ patient.patient_profile.gender|default:"" }}
+                    {% if patient.patient_profile.date_of_birth %} &bull; DOB: {{ patient.patient_profile.date_of_birth|date:"M d, Y" }}{% endif %}
+                  </div>
+                </td>
+                <td style="font-size: 0.88rem; color: var(--text-muted); max-width: 220px;">
+                  {{ patient.patient_profile.emergency_contact|default:"None listed" }}
+                </td>
+                <td>{{ patient.date_joined|date:"M d, Y" }}</td>
+                <td>
+                  <span class="role-pill role-patient" style="font-size: 0.8rem;">
+                    {{ patient.appointment_count }} Visits
+                  </span>
+                </td>
+                <td>
+                  <a href="{% url 'admin_appointment_list' %}?q={{ patient.username }}" class="btn btn-outline btn-sm" title="View Patient Appointments">
+                    <i class="fa-solid fa-calendar-check"></i> Bookings
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem;">
+        <i class="fa-solid fa-hospital-user" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+        <h3>No Patients Found</h3>
+        <p style="color: var(--text-muted);">No patients match the search query.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

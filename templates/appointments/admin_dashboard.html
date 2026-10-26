@@ -4,26 +4,33 @@
 
 {% block content %}
 <div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <!-- Welcome and Action Header -->
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
     <div>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fef3c7; color: #b45309; padding: 0.35rem 0.8rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem;">
+        <i class="fa-solid fa-shield-halved"></i> Administrator Console
+      </div>
       <h1 style="font-size: 2.2rem; margin-bottom: 0.25rem;">
-        Hospital Administration Console
+        Hospital Management Dashboard
       </h1>
       <p style="color: var(--text-muted); font-size: 1.05rem;">
-        Complete overview of departments, doctors, registered patients, and appointment logs.
+        Central control center for medical departments, specialist doctors, registered patients, and appointment logs.
       </p>
     </div>
-    <div style="display: flex; gap: 0.75rem;">
-      <a href="/admin/" class="btn btn-primary" target="_blank" id="btn-admin-django">
-        <i class="fa-solid fa-sliders"></i> Open Full Django Admin
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{% url 'admin_doctor_create' %}" class="btn btn-primary" id="btn-admin-add-doctor">
+        <i class="fa-solid fa-user-plus"></i> Add New Doctor
       </a>
-      <a href="{% url 'profile' %}" class="btn btn-outline">
-        <i class="fa-solid fa-user-shield"></i> Admin Profile
+      <a href="{% url 'admin_department_create' %}" class="btn btn-outline" id="btn-admin-add-dept">
+        <i class="fa-solid fa-folder-plus"></i> Add Department
+      </a>
+      <a href="/admin/" class="btn btn-outline" target="_blank" title="Open Django native administration">
+        <i class="fa-solid fa-sliders"></i> Django Admin
       </a>
     </div>
   </div>
 
-  <!-- Stats Grid -->
+  <!-- Key Performance Indicators (KPIs) -->
   <div class="profile-stats-grid">
     <div class="stat-card">
       <div class="stat-icon primary">
@@ -31,7 +38,7 @@
       </div>
       <div class="stat-details">
         <h3>{{ total_doctors }}</h3>
-        <p>Doctors Enrolled</p>
+        <p>Specialist Doctors</p>
       </div>
     </div>
     <div class="stat-card">
@@ -58,39 +65,124 @@
       </div>
       <div class="stat-details">
         <h3>{{ total_appointments }}</h3>
-        <p>Total Bookings Logged</p>
+        <p>Total Consultations</p>
       </div>
     </div>
   </div>
 
-  <!-- Quick Admin Actions -->
-  <div class="card" style="margin-bottom: 2.5rem; background: #f8fafc;">
-    <h3 style="font-size: 1.15rem; margin-bottom: 1rem; color: var(--dark);">
-      <i class="fa-solid fa-bolt" style="color: var(--warning); margin-right: 0.4rem;"></i> Quick Management Shortcuts
+  <!-- Appointment Status Breakdown -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Pending Review</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: var(--warning);">{{ pending_count }}</div>
+      </div>
+      <i class="fa-solid fa-hourglass-half" style="color: var(--warning); font-size: 1.5rem;"></i>
+    </div>
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Confirmed Active</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: var(--primary);">{{ confirmed_count }}</div>
+      </div>
+      <i class="fa-solid fa-calendar-check" style="color: var(--primary); font-size: 1.5rem;"></i>
+    </div>
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Completed Consultations</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: var(--success);">{{ completed_count }}</div>
+      </div>
+      <i class="fa-solid fa-circle-check" style="color: var(--success); font-size: 1.5rem;"></i>
+    </div>
+    <div style="background: white; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Cancelled / Rejected</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: var(--danger);">{{ cancelled_count }}</div>
+      </div>
+      <i class="fa-solid fa-ban" style="color: var(--danger); font-size: 1.5rem;"></i>
+    </div>
+  </div>
+
+  <!-- Primary In-App Management Modules Navigation -->
+  <div class="card" style="margin-bottom: 2.5rem; background: #f8fafc; border-top: 4px solid var(--primary);">
+    <h3 style="font-size: 1.2rem; margin-bottom: 1.25rem; color: var(--dark); display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-layer-group" style="color: var(--primary);"></i> In-App Administration Modules
     </h3>
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-      <a href="/admin/doctors/department/add/" class="btn btn-outline btn-sm" target="_blank">
-        <i class="fa-solid fa-plus"></i> Add Department
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+      <!-- Departments Module -->
+      <a href="{% url 'admin_department_list' %}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: #eff6ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+              <i class="fa-solid fa-sitemap"></i>
+            </div>
+            <div>
+              <h4 style="font-size: 1.05rem; margin: 0;">Departments</h4>
+              <small style="color: var(--text-muted);">{{ total_departments }} Departments</small>
+            </div>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Add, edit and monitor clinical departments and hospital units.</p>
+        </div>
       </a>
-      <a href="/admin/doctors/doctor/add/" class="btn btn-outline btn-sm" target="_blank">
-        <i class="fa-solid fa-user-plus"></i> Add Doctor
+
+      <!-- Doctors Module -->
+      <a href="{% url 'admin_doctor_list' %}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: #ecfdf5; color: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+              <i class="fa-solid fa-user-doctor"></i>
+            </div>
+            <div>
+              <h4 style="font-size: 1.05rem; margin: 0;">Doctors Directory</h4>
+              <small style="color: var(--text-muted);">{{ total_doctors }} Active Doctors</small>
+            </div>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Enroll medical practitioners, set working hours and fees.</p>
+        </div>
       </a>
-      <a href="/admin/accounts/user/" class="btn btn-outline btn-sm" target="_blank">
-        <i class="fa-solid fa-users"></i> Manage Users
+
+      <!-- Patients Module -->
+      <a href="{% url 'admin_patient_list' %}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: #f5f3ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+              <i class="fa-solid fa-hospital-user"></i>
+            </div>
+            <div>
+              <h4 style="font-size: 1.05rem; margin: 0;">Patient Records</h4>
+              <small style="color: var(--text-muted);">{{ total_patients }} Enrolled Patients</small>
+            </div>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">View patient profiles, emergency contacts, and history.</p>
+        </div>
       </a>
-      <a href="/admin/appointments/appointment/" class="btn btn-outline btn-sm" target="_blank">
-        <i class="fa-solid fa-list-check"></i> Manage All Appointments
+
+      <!-- Appointments Module -->
+      <a href="{% url 'admin_appointment_list' %}" style="text-decoration: none; color: inherit;">
+        <div class="card" style="padding: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: #fffbeb; color: var(--warning); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div>
+              <h4 style="font-size: 1.05rem; margin: 0;">All Appointments</h4>
+              <small style="color: var(--text-muted);">{{ total_appointments }} Total Bookings</small>
+            </div>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">Filter, search, audit and update status for all consultations.</p>
+        </div>
       </a>
     </div>
   </div>
 
-  <!-- Recent Appointments Feed -->
+  <!-- Recent Appointments Feed with Actions -->
   <div class="card">
     <div class="card-header">
       <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
-        <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Recent Hospital Appointments
+        <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Recent Hospital Activity
       </h2>
-      <a href="/admin/appointments/appointment/" class="btn btn-outline btn-sm" target="_blank">View All in Admin</a>
+      <a href="{% url 'admin_appointment_list' %}" class="btn btn-outline btn-sm">
+        View All Appointments <i class="fa-solid fa-arrow-right"></i>
+      </a>
     </div>
 
     {% if recent_appointments %}
@@ -100,31 +192,44 @@
             <tr>
               <th>ID</th>
               <th>Patient</th>
-              <th>Doctor</th>
-              <th>Scheduled</th>
+              <th>Assigned Doctor</th>
+              <th>Department</th>
+              <th>Scheduled Time</th>
               <th>Status</th>
-              <th>Booked On</th>
+              <th>Manage</th>
             </tr>
           </thead>
           <tbody>
             {% for app in recent_appointments %}
               <tr>
-                <td>#{{ app.id }}</td>
+                <td><strong>#{{ app.id }}</strong></td>
                 <td>
                   <strong>{{ app.patient.get_full_name|default:app.patient.username }}</strong>
                   <div style="font-size: 0.8rem; color: var(--text-muted);">{{ app.patient.email }}</div>
                 </td>
-                <td>Dr. {{ app.doctor.user.get_full_name|default:app.doctor.user.username }}</td>
-                <td>{{ app.date|date:"M d, Y" }} at {{ app.time|time:"g:i A" }}</td>
-                <td><span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span></td>
-                <td>{{ app.created_at|date:"M d, H:i" }}</td>
+                <td>
+                  <strong>Dr. {{ app.doctor.user.get_full_name|default:app.doctor.user.username }}</strong>
+                </td>
+                <td>{{ app.doctor.department.name|default:"General" }}</td>
+                <td>
+                  <div style="font-weight: 600;">{{ app.date|date:"M d, Y" }}</div>
+                  <small style="color: var(--primary);">{{ app.time|time:"g:i A" }}</small>
+                </td>
+                <td>
+                  <span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span>
+                </td>
+                <td>
+                  <a href="{% url 'admin_appointment_list' %}?q={{ app.patient.username }}" class="btn btn-outline btn-sm">
+                    Inspect
+                  </a>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     {% else %}
-      <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">No appointments in system yet.</p>
+      <p style="color: var(--text-muted); padding: 2rem; text-align: center;">No appointments in system yet.</p>
     {% endif %}
   </div>
 </div>

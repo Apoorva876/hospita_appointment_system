@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime, date
 
@@ -47,13 +48,32 @@ def patient_dashboard_view(request):
 
 @doctor_required
 def doctor_dashboard_view(request):
-    doctor = get_object_or_404(Doctor, user=request.user)
+    doctor = get_object_or_404(Doctor.objects.select_related('department'), user=request.user)
     today = timezone.localdate()
 
-    all_appointments = Appointment.objects.filter(doctor=doctor).select_related('patient').order_by('date', 'time')
+    all_appointments = Appointment.objects.filter(doctor=doctor).select_related('patient', 'patient__patient_profile').order_by('date', 'time')
     today_appointments = all_appointments.filter(date=today).exclude(status__in=['Cancelled', 'Rejected'])
     pending_appointments = all_appointments.filter(status='Pending')
     confirmed_appointments = all_appointments.filter(status='Confirmed')
+    completed_appointments = all_appointments.filter(status='Completed')
+
+    # Optional search / filter within doctor's appointments
+    query = request.GET.get('q', '').strip()
+    date_filter = request.GET.get('date')
+
+    search_results = None
+    if query or date_filter:
+        search_results = all_appointments
+        if query:
+            search_results = search_results.filter(
+                Q(patient__first_name__icontains=query) |
+                Q(patient__last_name__icontains=query) |
+                Q(patient__username__icontains=query) |
+                Q(reason__icontains=query) |
+                Q(doctor_notes__icontains=query)
+            )
+        if date_filter:
+            search_results = search_results.filter(date=date_filter)
 
     context = {
         'doctor': doctor,
@@ -61,33 +81,33 @@ def doctor_dashboard_view(request):
         'today_appointments': today_appointments,
         'pending_appointments': pending_appointments,
         'confirmed_appointments': confirmed_appointments,
-        'all_appointments': all_appointments[:20],
+        'completed_appointments': completed_appointments,
+        'search_results': search_results,
+        'query': query,
+        'date_filter': date_filter or '',
         'total_count': all_appointments.count(),
         'today_count': today_appointments.count(),
         'pending_count': pending_appointments.count(),
+        'completed_count': completed_appointments.count(),
     }
     return render(request, 'appointments/doctor_dashboard.html', context)
 
 
-@admin_required
-def admin_dashboard_view(request):
-    total_doctors = Doctor.objects.count()
-    total_patients = User.objects.filter(role='patient').count()
-    total_departments = Department.objects.count()
-    total_appointments = Appointment.objects.count()
+from .admin_views import (
+    admin_dashboard_view,
+    admin_department_list_view,
+    admin_department_create_view,
+    admin_department_edit_view,
+    admin_department_delete_view,
+    admin_doctor_list_view,
+    admin_doctor_create_view,
+    admin_doctor_edit_view,
+    admin_doctor_delete_view,
+    admin_patient_list_view,
+    admin_appointment_list_view,
+    admin_appointment_update_status_view,
+)
 
-    recent_appointments = Appointment.objects.select_related('patient', 'doctor', 'doctor__user').order_by('-created_at')[:10]
-    doctors = Doctor.objects.select_related('user', 'department')[:5]
-
-    context = {
-        'total_doctors': total_doctors,
-        'total_patients': total_patients,
-        'total_departments': total_departments,
-        'total_appointments': total_appointments,
-        'recent_appointments': recent_appointments,
-        'doctors': doctors,
-    }
-    return render(request, 'appointments/admin_dashboard.html', context)
 
 
 @patient_required

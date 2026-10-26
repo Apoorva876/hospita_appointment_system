@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="auth-wrapper">
-  <div class="auth-card" style="max-width: 480px;">
+  <div class="auth-card" style="max-width: 490px;">
     <div class="auth-header">
       <div class="brand-icon" style="margin: 0 auto 1rem; width: 52px; height: 52px; font-size: 1.5rem;">
         <i class="fa-solid fa-right-to-bracket"></i>
@@ -13,11 +13,22 @@
       <p>Log in to access your role-specific dashboard and appointments.</p>
     </div>
 
-    <!-- Role Indicator Pill Carousel -->
-    <div style="background: #f1f5f9; border-radius: var(--radius-md); padding: 0.6rem; display: flex; justify-content: space-around; margin-bottom: 1.75rem; font-size: 0.85rem; font-weight: 600;">
-      <span style="color: var(--primary);"><i class="fa-solid fa-user"></i> Patient</span>
-      <span style="color: var(--secondary);"><i class="fa-solid fa-user-doctor"></i> Doctor</span>
-      <span style="color: #b45309;"><i class="fa-solid fa-shield-halved"></i> Admin</span>
+    <!-- Quick 1-Click Demo Login Selector -->
+    <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem; margin-bottom: 1.5rem;">
+      <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.6rem; text-align: center; letter-spacing: 0.04em;">
+        <i class="fa-solid fa-bolt" style="color: var(--warning); margin-right: 0.3rem;"></i> 1-Click Demo Login Selector
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="fillDemo('patient_john', 'patient123')" title="Fill Patient Credentials (patient_john / patient123)">
+          <i class="fa-solid fa-user" style="color: var(--primary);"></i> Patient
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="fillDemo('dr_sarah', 'doctor123')" title="Fill Doctor Credentials (dr_sarah / doctor123)">
+          <i class="fa-solid fa-user-doctor" style="color: var(--secondary);"></i> Doctor
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="fillDemo('admin', 'admin123')" title="Fill Admin Credentials (admin / admin123)">
+          <i class="fa-solid fa-shield-halved" style="color: #b45309;"></i> Admin
+        </button>
+      </div>
     </div>
 
     <form method="POST" action="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" id="login-form">
@@ -64,4 +75,21 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fillDemo(username, password) {
+  const usernameInput = document.getElementById('id_username');
+  const passwordInput = document.getElementById('id_password');
+  usernameInput.value = username;
+  passwordInput.value = password;
+  usernameInput.style.backgroundColor = '#ecfdf5';
+  passwordInput.style.backgroundColor = '#ecfdf5';
+  setTimeout(() => {
+    usernameInput.style.backgroundColor = '';
+    passwordInput.style.backgroundColor = '';
+  }, 600);
+}
+</script>
 {% endblock %}

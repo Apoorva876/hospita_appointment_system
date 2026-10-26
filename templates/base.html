@@ -41,10 +41,13 @@
             {% if user.role == 'patient' %}
               <li><a href="{% url 'patient_dashboard' %}" class="nav-link"><i class="fa-solid fa-calendar-check"></i> My Appointments</a></li>
             {% elif user.role == 'doctor' %}
-              <li><a href="{% url 'doctor_dashboard' %}" class="nav-link"><i class="fa-solid fa-calendar-day"></i> Doctor Dashboard</a></li>
+              <li><a href="{% url 'doctor_dashboard' %}" class="nav-link"><i class="fa-solid fa-calendar-day"></i> Doctor Schedule</a></li>
             {% elif user.role == 'admin' or user.is_staff or user.is_superuser %}
-              <li><a href="{% url 'admin_dashboard' %}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Hospital Overview</a></li>
-              <li><a href="/admin/" class="nav-link" target="_blank"><i class="fa-solid fa-sliders"></i> Django Admin</a></li>
+              <li><a href="{% url 'admin_dashboard' %}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Admin Console</a></li>
+              <li><a href="{% url 'admin_department_list' %}" class="nav-link"><i class="fa-solid fa-sitemap"></i> Departments</a></li>
+              <li><a href="{% url 'admin_doctor_list' %}" class="nav-link"><i class="fa-solid fa-user-doctor"></i> Doctors</a></li>
+              <li><a href="{% url 'admin_appointment_list' %}" class="nav-link"><i class="fa-solid fa-list-check"></i> Appointments</a></li>
+              <li><a href="{% url 'admin_patient_list' %}" class="nav-link"><i class="fa-solid fa-hospital-user"></i> Patients</a></li>
             {% endif %}
             <li><a href="{% url 'profile' %}" class="nav-link"><i class="fa-solid fa-id-badge"></i> Profile</a></li>
           {% endif %}

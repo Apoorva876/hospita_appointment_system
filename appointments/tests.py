@@ -325,3 +325,93 @@ class HospitalSystemTests(TestCase):
         response = self.client.post(reverse('update_appointment_status', args=[app.id, 'confirm']), follow=True)
         app.refresh_from_db()
         self.assertEqual(app.status, 'Pending')
+
+    # --- Admin Portal Management Tests ---
+    def test_admin_can_access_dashboard_and_modules(self):
+        self.client.login(username="admin_boss", password="password123")
+        response = self.client.get(reverse('admin_dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Hospital Management Dashboard")
+
+        resp_depts = self.client.get(reverse('admin_department_list'))
+        self.assertEqual(resp_depts.status_code, 200)
+
+        resp_docs = self.client.get(reverse('admin_doctor_list'))
+        self.assertEqual(resp_docs.status_code, 200)
+
+        resp_pts = self.client.get(reverse('admin_patient_list'))
+        self.assertEqual(resp_pts.status_code, 200)
+
+        resp_apps = self.client.get(reverse('admin_appointment_list'))
+        self.assertEqual(resp_apps.status_code, 200)
+
+    def test_admin_can_create_and_delete_department(self):
+        self.client.login(username="admin_boss", password="password123")
+        response = self.client.post(reverse('admin_department_create'), {
+            'name': 'Dermatology & Skin Care',
+            'description': 'Comprehensive skin wellness and diagnosis.',
+            'icon': 'fa-allergies'
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Department.objects.filter(name='Dermatology & Skin Care').exists())
+
+        dept = Department.objects.get(name='Dermatology & Skin Care')
+        del_resp = self.client.post(reverse('admin_department_delete', args=[dept.id]), follow=True)
+        self.assertEqual(del_resp.status_code, 200)
+        self.assertFalse(Department.objects.filter(name='Dermatology & Skin Care').exists())
+
+    def test_admin_can_enroll_doctor(self):
+        self.client.login(username="admin_boss", password="password123")
+        response = self.client.post(reverse('admin_doctor_create'), {
+            'username': 'dr_new_specialist',
+            'first_name': 'Gregory',
+            'last_name': 'House',
+            'email': 'house@diagnostics.hospital',
+            'phone': '+1 555-888-0000',
+            'password': 'doctorpass123',
+            'department': self.dept_neuro.id,
+            'specialization': 'Diagnostic Medicine',
+            'experience': 20,
+            'fee': '250.00',
+            'working_hours_start': '08:00',
+            'working_hours_end': '16:00',
+            'room_number': 'Suite 404',
+            'bio': 'Board-certified diagnostician specializing in complex neurological and infectious ailments.'
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(User.objects.filter(username='dr_new_specialist', role='doctor').exists())
+        self.assertTrue(Doctor.objects.filter(specialization='Diagnostic Medicine').exists())
+
+    def test_admin_can_update_appointment_status(self):
+        self.client.login(username="admin_boss", password="password123")
+        app = Appointment.objects.create(
+            patient=self.patient_user,
+            doctor=self.doctor,
+            date=timezone.localdate() + timedelta(days=2),
+            time=time(11, 0),
+            reason='Need admin status audit',
+            status='Pending'
+        )
+
+        response = self.client.get(reverse('admin_appointment_update_status', args=[app.id, 'confirm']), follow=True)
+        self.assertEqual(response.status_code, 200)
+        app.refresh_from_db()
+        self.assertEqual(app.status, 'Confirmed')
+
+        # Admin can also cancel
+        response = self.client.get(reverse('admin_appointment_update_status', args=[app.id, 'cancel']), follow=True)
+        self.assertEqual(response.status_code, 200)
+        app.refresh_from_db()
+        self.assertEqual(app.status, 'Cancelled')
+
+    def test_non_admin_cannot_access_admin_crud(self):
+        self.client.login(username="patient_jane", password="password123")
+        response = self.client.get(reverse('admin_department_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('patient_dashboard'))
+
+        self.client.login(username="dr_smith", password="password123")
+        response = self.client.get(reverse('admin_doctor_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('doctor_dashboard'))
+
