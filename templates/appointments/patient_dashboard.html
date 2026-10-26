@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Dashboard - MediCare{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <!-- Welcome and Action Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2.2rem; margin-bottom: 0.25rem;">
+        Patient Portal & Appointments
+      </h1>
+      <p style="color: var(--text-muted); font-size: 1.05rem;">
+        Welcome, <strong>{{ user.get_full_name|default:user.username }}</strong>. Track your visits and manage your schedule.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'doctor_list' %}" class="btn btn-primary" id="btn-patient-new-book">
+        <i class="fa-solid fa-calendar-plus"></i> Book New Appointment
+      </a>
+      <a href="{% url 'profile' %}" class="btn btn-outline">
+        <i class="fa-solid fa-user"></i> My Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric Summary Cards -->
+  <div class="profile-stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ total_count }}</h3>
+        <p>Total Consultations</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon secondary">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ confirmed_count }}</h3>
+        <p>Confirmed Visits</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <i class="fa-solid fa-hourglass-half"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ pending_count }}</h3>
+        <p>Pending Doctor Review</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Appointments Section -->
+  <div class="card" style="margin-bottom: 2.5rem;">
+    <div class="card-header">
+      <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-clock" style="color: var(--primary);"></i> Upcoming Appointments
+      </h2>
+      <span class="role-pill role-patient">{{ upcoming_appointments.count }} Active</span>
+    </div>
+
+    {% if upcoming_appointments %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Doctor</th>
+              <th>Department</th>
+              <th>Date & Time</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in upcoming_appointments %}
+              <tr>
+                <td>
+                  <div style="font-weight: 700; color: var(--dark);">
+                    Dr. {{ app.doctor.user.get_full_name|default:app.doctor.user.username }}
+                  </div>
+                  <small style="color: var(--text-muted);">{{ app.doctor.specialization }}</small>
+                </td>
+                <td>{{ app.doctor.department.name|default:"General" }}</td>
+                <td>
+                  <div style="font-weight: 600;">{{ app.date|date:"M d, Y" }}</div>
+                  <small style="color: var(--primary);">{{ app.time|time:"g:i A" }}</small>
+                </td>
+                <td style="max-width: 250px;">{{ app.reason|truncatewords:8 }}</td>
+                <td>
+                  <span class="status-badge status-{{ app.status|lower }}">
+                    {{ app.status }}
+                  </span>
+                </td>
+                <td>
+                  {% if app.status == 'Pending' or app.status == 'Confirmed' %}
+                    <a href="{% url 'cancel_appointment' app.id %}" class="btn btn-danger btn-sm" title="Cancel this appointment">
+                      <i class="fa-solid fa-ban"></i> Cancel
+                    </a>
+                  {% else %}
+                    <span style="color: var(--text-light); font-size: 0.85rem;">No action</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem 1.5rem;">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; color: var(--text-light); margin-bottom: 0.75rem;"></i>
+        <h4 style="font-size: 1.15rem; margin-bottom: 0.35rem;">No Upcoming Appointments</h4>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">You do not have any active appointments scheduled at this moment.</p>
+        <a href="{% url 'doctor_list' %}" class="btn btn-primary btn-sm">Find a Doctor & Book</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Past & Completed Appointments Section -->
+  <div class="card">
+    <div class="card-header">
+      <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-history" style="color: var(--text-muted);"></i> Appointment History
+      </h2>
+    </div>
+
+    {% if past_appointments %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Doctor</th>
+              <th>Date & Time</th>
+              <th>Status</th>
+              <th>Doctor Clinical Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in past_appointments %}
+              <tr>
+                <td>
+                  <strong>Dr. {{ app.doctor.user.get_full_name|default:app.doctor.user.username }}</strong>
+                  <div style="font-size: 0.82rem; color: var(--text-muted);">{{ app.doctor.department.name }}</div>
+                </td>
+                <td>{{ app.date|date:"M d, Y" }} at {{ app.time|time:"g:i A" }}</td>
+                <td>
+                  <span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span>
+                </td>
+                <td>
+                  {% if app.doctor_notes %}
+                    <span style="font-size: 0.9rem; color: #047857; background: #ecfdf5; padding: 0.3rem 0.6rem; border-radius: var(--radius-sm); border: 1px solid #a7f3d0;">
+                      <i class="fa-solid fa-file-medical"></i> {{ app.doctor_notes }}
+                    </span>
+                  {% else %}
+                    <span style="color: var(--text-light); font-size: 0.85rem;">None recorded</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">No past appointment history.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

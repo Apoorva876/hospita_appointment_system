@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Specialists & Doctors - MediCare{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2.2rem; margin-bottom: 0.5rem;">Find a Specialist Doctor</h1>
+    <p style="color: var(--text-muted); font-size: 1.05rem;">Search and book consultation with verified medical practitioners.</p>
+  </div>
+
+  <!-- Search and Department Filter Bar -->
+  <div class="card" style="margin-bottom: 2.5rem; padding: 1.5rem;">
+    <form method="GET" action="{% url 'doctor_list' %}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div style="flex: 2; min-width: 250px;">
+        <input type="text" name="q" class="form-control" placeholder="Search doctor by name, specialty, or department..." value="{{ query }}">
+      </div>
+      <div style="flex: 1; min-width: 200px;">
+        <select name="department" class="form-control">
+          <option value="">All Departments</option>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if selected_dept == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary" id="btn-search-doctors">
+          <i class="fa-solid fa-magnifying-glass"></i> Search Doctors
+        </button>
+        {% if query or selected_dept %}
+          <a href="{% url 'doctor_list' %}" class="btn btn-outline" style="margin-left: 0.5rem;">Reset</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Doctors Grid -->
+  {% if doctors %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+      {% for doctor in doctors %}
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+              <div style="width: 64px; height: 64px; border-radius: var(--radius-full); background: var(--secondary-light); color: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                <i class="fa-solid fa-user-doctor"></i>
+              </div>
+              <div>
+                <h3 style="font-size: 1.25rem;">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h3>
+                <span class="role-pill role-doctor" style="font-size: 0.75rem;">
+                  {{ doctor.department.name|default:"General Medicine" }}
+                </span>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; font-size: 0.95rem; color: var(--text-muted);">
+              <div><strong style="color: var(--dark);">Specialization:</strong> {{ doctor.specialization }}</div>
+              <div><strong style="color: var(--dark);">Experience:</strong> {{ doctor.experience }} Years</div>
+              <div><strong style="color: var(--dark);">Working Hours:</strong> {{ doctor.working_hours_start|time:"g:i A" }} - {{ doctor.working_hours_end|time:"g:i A" }}</div>
+              <div><strong style="color: var(--dark);">Consultation Fee:</strong> <span style="color: var(--secondary); font-weight: 700;">${{ doctor.fee }}</span></div>
+            </div>
+
+            {% if doctor.bio %}
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem;">
+                {{ doctor.bio|truncatewords:20 }}
+              </p>
+            {% endif %}
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+            <a href="{% url 'doctor_detail' doctor.id %}" class="btn btn-outline" style="flex: 1;">
+              View Profile
+            </a>
+            <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-primary" style="flex: 1;">
+              <i class="fa-solid fa-calendar-check"></i> Book Now
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card" style="text-align: center; padding: 4rem 2rem;">
+      <i class="fa-solid fa-user-doctor" style="font-size: 3.5rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+      <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem;">No Doctors Found</h3>
+      <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;">We couldn't find any doctors matching your search criteria. Try selecting another department or clearing search keywords.</p>
+      <a href="{% url 'doctor_list' %}" class="btn btn-outline">Clear Filters</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Dr. {{ doctor.user.get_full_name|default:doctor.user.username }} - MediCare{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem; max-width: 900px;">
+  <div class="card">
+    <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; margin-bottom: 2rem;">
+      <div style="width: 100px; height: 100px; border-radius: var(--radius-full); background: linear-gradient(135deg, var(--secondary), var(--primary)); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.75rem; box-shadow: var(--shadow-md);">
+        <i class="fa-solid fa-user-doctor"></i>
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+          <h1 style="font-size: 2rem;">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h1>
+          <span class="role-pill role-doctor">{{ doctor.department.name|default:"General Medicine" }}</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0.75rem;">{{ doctor.specialization }}</p>
+        <p style="color: var(--text-light); font-size: 0.95rem;">
+          <i class="fa-solid fa-location-dot" style="margin-right: 0.4rem;"></i> {{ doctor.room_number|default:"Consultation Room 102" }}
+        </p>
+      </div>
+      <div>
+        <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-primary btn-lg" id="btn-detail-book">
+          <i class="fa-solid fa-calendar-check"></i> Book Appointment
+        </a>
+      </div>
+    </div>
+
+    <!-- Doctor Details Grid -->
+    <div class="info-list" style="margin-bottom: 2rem;">
+      <div class="info-item">
+        <div class="info-label">Clinical Department</div>
+        <div class="info-value">{{ doctor.department.name|default:"General" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Clinical Experience</div>
+        <div class="info-value">{{ doctor.experience }} Years</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Consultation Fee</div>
+        <div class="info-value" style="color: var(--secondary);">${{ doctor.fee }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Daily Working Hours</div>
+        <div class="info-value">{{ doctor.working_hours_start|time:"g:i A" }} - {{ doctor.working_hours_end|time:"g:i A" }}</div>
+      </div>
+    </div>
+
+    {% if doctor.bio %}
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem;">Biography & Clinical Focus</h3>
+        <p style="background: #f8fafc; border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-md); font-size: 1rem; line-height: 1.7; color: var(--text-main);">
+          {{ doctor.bio }}
+        </p>
+      </div>
+    {% endif %}
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+      <a href="{% url 'doctor_list' %}" class="btn btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Back to Doctors List
+      </a>
+      <a href="{% url 'book_appointment' doctor.id %}" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i> Proceed to Book Appointment
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

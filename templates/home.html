@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}MediCare - Modern Hospital Appointment & Scheduling System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="padding: 4.5rem 0 3.5rem; background: radial-gradient(circle at 85% 15%, rgba(2, 132, 199, 0.12) 0%, transparent 60%);">
+  <div class="container" style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3.5rem; align-items: center;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-light); color: var(--primary); padding: 0.4rem 0.9rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 700; margin-bottom: 1.25rem;">
+        <i class="fa-solid fa-sparkles"></i> Next-Gen Healthcare Appointment Portal
+      </div>
+      <h1 style="font-size: 3rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.25rem;">
+        Healthcare Made <span style="background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Effortless & Accessible</span>
+      </h1>
+      <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem;">
+        Book appointments with verified specialists in seconds. Real-time slot confirmation, comprehensive patient profiles, and customized doctor portals.
+      </p>
+      
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        {% if user.is_authenticated %}
+          {% if user.role == 'patient' %}
+            <a href="{% url 'doctor_list' %}" class="btn btn-primary btn-lg" id="btn-hero-book">
+              <i class="fa-solid fa-calendar-plus"></i> Book Appointment Now
+            </a>
+            <a href="{% url 'patient_dashboard' %}" class="btn btn-outline btn-lg" id="btn-hero-dashboard">
+              <i class="fa-solid fa-list-check"></i> My Appointments
+            </a>
+          {% elif user.role == 'doctor' %}
+            <a href="{% url 'doctor_dashboard' %}" class="btn btn-secondary btn-lg" id="btn-hero-doctor">
+              <i class="fa-solid fa-user-doctor"></i> Doctor Dashboard
+            </a>
+          {% elif user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-primary btn-lg" id="btn-hero-admin">
+              <i class="fa-solid fa-chart-pie"></i> Hospital Admin Console
+            </a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'register' %}" class="btn btn-primary btn-lg" id="btn-hero-register">
+            <i class="fa-solid fa-user-plus"></i> Patient Registration
+          </a>
+          <a href="{% url 'doctor_list' %}" class="btn btn-outline btn-lg" id="btn-hero-doctors">
+            <i class="fa-solid fa-stethoscope"></i> Find Doctors
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Stats & Highlights Box -->
+    <div class="card" style="padding: 2.25rem; background: white; border: 1.5px solid var(--border-color); box-shadow: var(--shadow-lg);">
+      <h3 style="font-size: 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-hospital" style="color: var(--primary);"></i> Hospital Highlights
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">{{ total_doctors }}</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Specialist Doctors</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; color: var(--secondary);">{{ total_departments }}</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Clinical Departments</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; color: var(--accent);">{{ total_patients }}</div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">Active Patients</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <div style="font-size: 2rem; font-weight: 800; color: var(--success);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">24/7 Booking</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Role-Based Features Grid -->
+<section style="padding: 4rem 0;">
+  <div class="container">
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 3rem;">
+      <h2 style="font-size: 2.1rem; margin-bottom: 0.75rem;">Role-Based Hospital Management</h2>
+      <p style="color: var(--text-muted); font-size: 1.05rem;">Engineered specifically for Patients, Doctors, and Administrators with tailored workflows.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+      <!-- Patient Card -->
+      <div class="card" style="border-top: 4px solid var(--primary);">
+        <div class="stat-icon primary" style="margin-bottom: 1.25rem;">
+          <i class="fa-solid fa-user-injured"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; margin-bottom: 0.75rem;">For Patients</h3>
+        <ul style="list-style: none; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Online registration & comprehensive profile</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Filter doctors by department & specialization</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Select date, time and avoid double-booking</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Cancel active appointments with 1 click</li>
+        </ul>
+        <a href="{% url 'register' %}" class="btn btn-outline" style="width: 100%;">Create Patient Account</a>
+      </div>
+
+      <!-- Doctor Card -->
+      <div class="card" style="border-top: 4px solid var(--secondary);">
+        <div class="stat-icon secondary" style="margin-bottom: 1.25rem;">
+          <i class="fa-solid fa-stethoscope"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; margin-bottom: 0.75rem;">For Doctors</h3>
+        <ul style="list-style: none; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Dedicated schedule and today's consultation list</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Confirm, reject, or complete requests</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Add private clinical advice & doctor notes</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Configure working hours & consultation fee</li>
+        </ul>
+        <a href="{% url 'login' %}" class="btn btn-outline" style="width: 100%;">Doctor Portal Login</a>
+      </div>
+
+      <!-- Admin Card -->
+      <div class="card" style="border-top: 4px solid #b45309;">
+        <div class="stat-icon warning" style="margin-bottom: 1.25rem;">
+          <i class="fa-solid fa-hospital-user"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; margin-bottom: 0.75rem;">For Administrators</h3>
+        <ul style="list-style: none; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; font-size: 0.95rem;">
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Manage medical departments & facilities</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Onboard and assign specialist doctors</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Real-time system monitoring & appointment audit</li>
+          <li><i class="fa-solid fa-check" style="color: var(--success); margin-right: 0.5rem;"></i> Full Django administrative security</li>
+        </ul>
+        <a href="{% url 'login' %}" class="btn btn-outline" style="width: 100%;">Administrator Login</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - MediCare{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem; max-width: 860px;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h1 style="font-size: 1.5rem; margin-bottom: 0.25rem;">
+          <i class="fa-solid fa-user-pen" style="color: var(--primary); margin-right: 0.5rem;"></i> Edit Your Profile
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Update your account credentials, contact information, and role-specific details.</p>
+      </div>
+      <span class="role-pill role-{{ user.role }}">{{ user.get_role_display }}</span>
+    </div>
+
+    <form method="POST" action="{% url 'profile_edit' %}" id="profile-edit-form">
+      {% csrf_token %}
+
+      <!-- Basic User Information -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-address-card"></i> Contact Information
+      </h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ user_form.first_name.id_for_label }}">First Name</label>
+          {{ user_form.first_name }}
+          {% if user_form.first_name.errors %}
+            <small style="color: var(--danger);">{{ user_form.first_name.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+          {{ user_form.last_name }}
+          {% if user_form.last_name.errors %}
+            <small style="color: var(--danger);">{{ user_form.last_name.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ user_form.email.id_for_label }}">Email Address</label>
+          {{ user_form.email }}
+          {% if user_form.email.errors %}
+            <small style="color: var(--danger);">{{ user_form.email.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ user_form.phone.id_for_label }}">Phone Number</label>
+          {{ user_form.phone }}
+          {% if user_form.phone.errors %}
+            <small style="color: var(--danger);">{{ user_form.phone.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Patient Specific Profile Form -->
+      {% if patient_form %}
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.75rem 0;">
+        <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-hospital-user"></i> Patient Medical Profile
+        </h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="{{ patient_form.date_of_birth.id_for_label }}">Date of Birth</label>
+            {{ patient_form.date_of_birth }}
+            {% if patient_form.date_of_birth.errors %}
+              <small style="color: var(--danger);">{{ patient_form.date_of_birth.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ patient_form.gender.id_for_label }}">Gender</label>
+            {{ patient_form.gender }}
+            {% if patient_form.gender.errors %}
+              <small style="color: var(--danger);">{{ patient_form.gender.errors.0 }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="{{ patient_form.blood_group.id_for_label }}">Blood Group</label>
+            {{ patient_form.blood_group }}
+            {% if patient_form.blood_group.errors %}
+              <small style="color: var(--danger);">{{ patient_form.blood_group.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ patient_form.emergency_contact.id_for_label }}">Emergency Contact Phone</label>
+            {{ patient_form.emergency_contact }}
+            {% if patient_form.emergency_contact.errors %}
+              <small style="color: var(--danger);">{{ patient_form.emergency_contact.errors.0 }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ patient_form.address.id_for_label }}">Residential Address</label>
+          {{ patient_form.address }}
+          {% if patient_form.address.errors %}
+            <small style="color: var(--danger);">{{ patient_form.address.errors.0 }}</small>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Doctor Specific Profile Form -->
+      {% if doctor_form %}
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.75rem 0;">
+        <h3 style="font-size: 1.1rem; color: var(--secondary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-user-doctor"></i> Doctor Professional Information
+        </h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="{{ doctor_form.specialization.id_for_label }}">Specialization</label>
+            {{ doctor_form.specialization }}
+            {% if doctor_form.specialization.errors %}
+              <small style="color: var(--danger);">{{ doctor_form.specialization.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ doctor_form.experience.id_for_label }}">Years of Experience</label>
+            {{ doctor_form.experience }}
+            {% if doctor_form.experience.errors %}
+              <small style="color: var(--danger);">{{ doctor_form.experience.errors.0 }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="{{ doctor_form.fee.id_for_label }}">Consultation Fee ($)</label>
+            {{ doctor_form.fee }}
+            {% if doctor_form.fee.errors %}
+              <small style="color: var(--danger);">{{ doctor_form.fee.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ doctor_form.room_number.id_for_label }}">Room / Clinic Number</label>
+            {{ doctor_form.room_number }}
+            {% if doctor_form.room_number.errors %}
+              <small style="color: var(--danger);">{{ doctor_form.room_number.errors.0 }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label" for="{{ doctor_form.working_hours_start.id_for_label }}">Working Hours Start</label>
+            {{ doctor_form.working_hours_start }}
+            {% if doctor_form.working_hours_start.errors %}
+              <small style="color: var(--danger);">{{ doctor_form.working_hours_start.errors.0 }}</small>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ doctor_form.working_hours_end.id_for_label }}">Working Hours End</label>
+            {{ doctor_form.working_hours_end }}
+            {% if doctor_form.working_hours_end.errors %}
+              <small style="color: var(--danger);">{{ doctor_form.working_hours_end.errors.0 }}</small>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ doctor_form.bio.id_for_label }}">Biography</label>
+          {{ doctor_form.bio }}
+          {% if doctor_form.bio.errors %}
+            <small style="color: var(--danger);">{{ doctor_form.bio.errors.0 }}</small>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end;">
+        <a href="{% url 'profile' %}" class="btn btn-outline">
+          <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" id="btn-save-profile">
+          <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

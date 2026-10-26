@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Appointment - MediCare{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 4rem; max-width: 680px;">
+  <div class="card" style="box-shadow: var(--shadow-lg); 
+    {% if action == 'confirm' %}border-top: 4px solid var(--success);
+    {% elif action == 'reject' %}border-top: 4px solid var(--danger);
+    {% else %}border-top: 4px solid var(--primary);{% endif %}">
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div style="width: 68px; height: 68px; border-radius: var(--radius-full); 
+        {% if action == 'confirm' %}background: #ecfdf5; color: var(--success);
+        {% elif action == 'reject' %}background: #fee2e2; color: var(--danger);
+        {% else %}background: #eff6ff; color: var(--primary);{% endif %}
+        display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem;">
+        {% if action == 'confirm' %}
+          <i class="fa-solid fa-calendar-check"></i>
+        {% elif action == 'reject' %}
+          <i class="fa-solid fa-calendar-xmark"></i>
+        {% else %}
+          <i class="fa-solid fa-notes-medical"></i>
+        {% endif %}
+      </div>
+      <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--dark);">
+        {% if action == 'confirm' %}Confirm Appointment #{{ appointment.id }}
+        {% elif action == 'reject' %}Reject Appointment #{{ appointment.id }}
+        {% else %}Complete Appointment #{{ appointment.id }}{% endif %}
+      </h1>
+      <p style="color: var(--text-muted); font-size: 1rem;">
+        {% if action == 'confirm' %}Confirming will notify the patient that their consultation is scheduled.
+        {% elif action == 'reject' %}Rejecting will decline this consultation and release the booked slot.
+        {% else %}Mark this consultation as finished and record clinical notes or prescription advice.{% endif %}
+      </p>
+    </div>
+
+    <!-- Appointment & Patient Summary -->
+    <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem;">
+      <div class="info-list">
+        <div class="info-item">
+          <div class="info-label">Patient Name</div>
+          <div class="info-value">
+            <strong>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</strong>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">({{ appointment.patient.email }})</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Patient Contact</div>
+          <div class="info-value">{{ appointment.patient.phone|default:"No phone number provided" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Consultation Date & Time</div>
+          <div class="info-value" style="font-weight: 600;">
+            {{ appointment.date|date:"l, M d, Y" }} at {{ appointment.time|time:"g:i A" }}
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Patient Symptoms / Reason</div>
+          <div class="info-value" style="color: var(--text-muted);">{{ appointment.reason }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Form -->
+    <form method="POST" action="{% url 'update_appointment_status' appointment.id action %}">
+      {% csrf_token %}
+
+      <div class="form-group" style="margin-bottom: 1.75rem;">
+        <label class="form-label" for="doctor_notes">
+          <i class="fa-solid fa-stethoscope" style="color: var(--primary);"></i> Doctor Clinical Notes / Instructions 
+          {% if action == 'complete' %}<span style="color: var(--primary); font-weight: normal;">(Recommended)</span>{% else %}<span style="color: var(--text-light); font-weight: normal;">(Optional)</span>{% endif %}
+        </label>
+        <textarea name="doctor_notes" id="doctor_notes" rows="4" class="form-control" 
+          placeholder="{% if action == 'complete' %}Record diagnosis summary, prescribed medication, or followup advice for the patient...{% elif action == 'reject' %}Optional reason for declining the appointment...{% else %}Optional preparation instructions for the patient...{% endif %}">{{ appointment.doctor_notes }}</textarea>
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline" style="flex: 1; text-align: center;">
+          <i class="fa-solid fa-arrow-left"></i> Cancel
+        </a>
+        <button type="submit" 
+          class="btn {% if action == 'confirm' %}btn-success{% elif action == 'reject' %}btn-danger{% else %}btn-primary{% endif %}" 
+          style="flex: 1;" id="btn-submit-action">
+          {% if action == 'confirm' %}
+            <i class="fa-solid fa-check"></i> Confirm Appointment
+          {% elif action == 'reject' %}
+            <i class="fa-solid fa-xmark"></i> Reject Appointment
+          {% else %}
+            <i class="fa-solid fa-circle-check"></i> Complete & Save
+          {% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Hospital Administration Portal - MediCare{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 3.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2.2rem; margin-bottom: 0.25rem;">
+        Hospital Administration Console
+      </h1>
+      <p style="color: var(--text-muted); font-size: 1.05rem;">
+        Complete overview of departments, doctors, registered patients, and appointment logs.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="/admin/" class="btn btn-primary" target="_blank" id="btn-admin-django">
+        <i class="fa-solid fa-sliders"></i> Open Full Django Admin
+      </a>
+      <a href="{% url 'profile' %}" class="btn btn-outline">
+        <i class="fa-solid fa-user-shield"></i> Admin Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="profile-stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon primary">
+        <i class="fa-solid fa-user-doctor"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ total_doctors }}</h3>
+        <p>Doctors Enrolled</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon secondary">
+        <i class="fa-solid fa-hospital-user"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ total_patients }}</h3>
+        <p>Registered Patients</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon accent">
+        <i class="fa-solid fa-sitemap"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ total_departments }}</h3>
+        <p>Clinical Departments</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+      <div class="stat-details">
+        <h3>{{ total_appointments }}</h3>
+        <p>Total Bookings Logged</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Admin Actions -->
+  <div class="card" style="margin-bottom: 2.5rem; background: #f8fafc;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 1rem; color: var(--dark);">
+      <i class="fa-solid fa-bolt" style="color: var(--warning); margin-right: 0.4rem;"></i> Quick Management Shortcuts
+    </h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a href="/admin/doctors/department/add/" class="btn btn-outline btn-sm" target="_blank">
+        <i class="fa-solid fa-plus"></i> Add Department
+      </a>
+      <a href="/admin/doctors/doctor/add/" class="btn btn-outline btn-sm" target="_blank">
+        <i class="fa-solid fa-user-plus"></i> Add Doctor
+      </a>
+      <a href="/admin/accounts/user/" class="btn btn-outline btn-sm" target="_blank">
+        <i class="fa-solid fa-users"></i> Manage Users
+      </a>
+      <a href="/admin/appointments/appointment/" class="btn btn-outline btn-sm" target="_blank">
+        <i class="fa-solid fa-list-check"></i> Manage All Appointments
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Appointments Feed -->
+  <div class="card">
+    <div class="card-header">
+      <h2 style="font-size: 1.3rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Recent Hospital Appointments
+      </h2>
+      <a href="/admin/appointments/appointment/" class="btn btn-outline btn-sm" target="_blank">View All in Admin</a>
+    </div>
+
+    {% if recent_appointments %}
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Scheduled</th>
+              <th>Status</th>
+              <th>Booked On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in recent_appointments %}
+              <tr>
+                <td>#{{ app.id }}</td>
+                <td>
+                  <strong>{{ app.patient.get_full_name|default:app.patient.username }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ app.patient.email }}</div>
+                </td>
+                <td>Dr. {{ app.doctor.user.get_full_name|default:app.doctor.user.username }}</td>
+                <td>{{ app.date|date:"M d, Y" }} at {{ app.time|time:"g:i A" }}</td>
+                <td><span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span></td>
+                <td>{{ app.created_at|date:"M d, H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">No appointments in system yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

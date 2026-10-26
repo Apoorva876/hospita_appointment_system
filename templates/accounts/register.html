@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Registration - MediCare{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card" style="max-width: 720px;">
+    <div class="auth-header">
+      <div class="brand-icon" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.4rem;">
+        <i class="fa-solid fa-user-plus"></i>
+      </div>
+      <h1>Create Patient Account</h1>
+      <p>Register as a patient to schedule appointments with specialists and manage your medical visits.</p>
+    </div>
+
+    <form method="POST" action="{% url 'register' %}" id="register-form" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Account Credentials Section -->
+      <h3 style="font-size: 1.1rem; color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-lock"></i> Account Credentials
+      </h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ form.username.id_for_label }}">Username *</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.username.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.email.id_for_label }}">Email Address *</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.email.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ form.password.id_for_label }}">Password *</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.password.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.confirm_password.id_for_label }}">Confirm Password *</label>
+          {{ form.confirm_password }}
+          {% if form.confirm_password.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.confirm_password.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Personal Information Section -->
+      <h3 style="font-size: 1.1rem; color: var(--secondary); margin-top: 1.25rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-user"></i> Personal & Medical Details
+      </h3>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name *</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.first_name.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name *</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.last_name.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ form.phone.id_for_label }}">Phone Number</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.phone.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+          {{ form.date_of_birth }}
+          {% if form.date_of_birth.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.date_of_birth.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="{{ form.gender.id_for_label }}">Gender</label>
+          {{ form.gender }}
+          {% if form.gender.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.gender.errors.0 }}</small>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="{{ form.blood_group.id_for_label }}">Blood Group</label>
+          {{ form.blood_group }}
+          {% if form.blood_group.errors %}
+            <small style="color: var(--danger); font-size: 0.82rem;">{{ form.blood_group.errors.0 }}</small>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.address.id_for_label }}">Residential Address</label>
+        {{ form.address }}
+        {% if form.address.errors %}
+          <small style="color: var(--danger); font-size: 0.82rem;">{{ form.address.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;" id="btn-submit-register">
+        <i class="fa-solid fa-arrow-right"></i> Complete Registration
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="{% url 'login' %}" style="font-weight: 600;">Log in here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

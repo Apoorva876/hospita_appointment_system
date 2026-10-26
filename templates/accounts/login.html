@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In - MediCare Portal{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card" style="max-width: 480px;">
+    <div class="auth-header">
+      <div class="brand-icon" style="margin: 0 auto 1rem; width: 52px; height: 52px; font-size: 1.5rem;">
+        <i class="fa-solid fa-right-to-bracket"></i>
+      </div>
+      <h1>Welcome Back</h1>
+      <p>Log in to access your role-specific dashboard and appointments.</p>
+    </div>
+
+    <!-- Role Indicator Pill Carousel -->
+    <div style="background: #f1f5f9; border-radius: var(--radius-md); padding: 0.6rem; display: flex; justify-content: space-around; margin-bottom: 1.75rem; font-size: 0.85rem; font-weight: 600;">
+      <span style="color: var(--primary);"><i class="fa-solid fa-user"></i> Patient</span>
+      <span style="color: var(--secondary);"><i class="fa-solid fa-user-doctor"></i> Doctor</span>
+      <span style="color: #b45309;"><i class="fa-solid fa-shield-halved"></i> Admin</span>
+    </div>
+
+    <form method="POST" action="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" id="login-form">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-error">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <div>
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label class="form-label" for="id_username">
+          <i class="fa-solid fa-user" style="color: var(--text-muted); margin-right: 0.3rem;"></i> Username
+        </label>
+        <input type="text" name="username" autofocus required id="id_username" class="form-control" placeholder="Enter username" value="{{ form.username.value|default:'' }}">
+        {% if form.username.errors %}
+          <small style="color: var(--danger); font-size: 0.82rem;">{{ form.username.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_password">
+          <i class="fa-solid fa-lock" style="color: var(--text-muted); margin-right: 0.3rem;"></i> Password
+        </label>
+        <input type="password" name="password" required id="id_password" class="form-control" placeholder="Enter password">
+        {% if form.password.errors %}
+          <small style="color: var(--danger); font-size: 0.82rem;">{{ form.password.errors.0 }}</small>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;" id="btn-submit-login">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Portal
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      New to MediCare? <a href="{% url 'register' %}" style="font-weight: 600;">Register as a Patient</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
